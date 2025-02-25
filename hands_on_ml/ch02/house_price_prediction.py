@@ -5,6 +5,8 @@ import urllib.request
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OrdinalEncoder
 
 
 def load_housing_data():
@@ -44,5 +46,48 @@ for set_ in (strat_train_set, strat_test_set):
     set_.drop("income_cat", axis=1, inplace=True)
 
 # exploration of data
-housing.plot(kind="scatter", x="longitude", y="latitude", grid=True, alpha=0.2)
-plt.show()
+# housing.plot(kind="scatter", x="longitude", y="latitude", grid=True, alpha=0.2)
+# plt.show()
+
+# -----------------------------------------------------------------------
+# housing.plot(
+#     kind="scatter",
+#     x="longitude",
+#     y="latitude",
+#     c="median_house_value",
+#     legend=True,
+#     sharex=False,
+#     figsize=(10, 8),
+#     grid=True,
+#     s=housing["population"] / 100,
+#     label="population",
+#     cmap=plt.get_cmap("jet"),
+#     colorbar=True,
+#     alpha=0.2,
+# )
+# plt.show()
+
+# housing.describe()
+# corr_matrix = housing.corr()
+# corr_matrix["median_house_value"].sort_values(ascending=False)
+
+housing = strat_train_set.drop("median_house_value", axis=1)
+housing_labels = strat_train_set["median_house_value"].copy()
+
+imputer = SimpleImputer(strategy="median")
+housing_num = housing.select_dtypes(include=[np.number])
+imputer.fit(housing_num)
+
+print("--------------------imputer.statistics_----------------------------")
+print(imputer.statistics_)
+# Now you can use this “trained” imputer to transform the training set by replacing missing values with the learned medians:
+X = imputer.transform(housing_num)
+print("--------------------X----------------------------")
+print(X)
+
+
+# start to encode
+ordinal_encoder = OrdinalEncoder()
+housing_cat = housing[["ocean_proximity"]]
+print("--------------------housing_cat----------------------------")
+print(housing_cat.info())
