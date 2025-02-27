@@ -6,7 +6,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import (
+    OrdinalEncoder,
+    OneHotEncoder,
+    StandardScaler,
+    MinMaxScaler,
+)
+from sklearn.pipeline import make_pipeline
+from sklearn.compose import make_column_transformer, make_column_selector
 
 
 def load_housing_data():
@@ -89,5 +96,60 @@ print(X)
 # start to encode
 ordinal_encoder = OrdinalEncoder()
 housing_cat = housing[["ocean_proximity"]]
-print("--------------------housing_cat----------------------------")
-print(housing_cat.info())
+housing_cat_encoded = ordinal_encoder.fit_transform(housing_cat)
+print(housing_cat_encoded[:])
+print(ordinal_encoder.categories_)
+
+one_hot_encoder = OneHotEncoder()
+housing_cat_oh = one_hot_encoder.fit_transform(housing_cat)
+print("--------------------One Hot Encoding----------------------------")
+print(housing_cat_oh.toarray())
+
+print("--------------------House Num----------------------------")
+print(housing_num.head())
+
+std_scaler = StandardScaler()
+housing_num_scaled = std_scaler.fit_transform(housing_num)
+min_max_scaler = MinMaxScaler()
+housing_num_min_max_scaled = min_max_scaler.fit_transform(housing_num)
+
+print("--------------------housing_num before scale----------------------------")
+print(housing_num)
+print("--------------------housing_num_scaled----------------------------")
+print(housing_num_scaled)
+print("--------------------housing_num_min_max_scaled----------------------------")
+print(housing_num_min_max_scaled)
+
+# pipeline
+num_pipeline = make_pipeline(SimpleImputer(strategy="median"), StandardScaler())
+housing_num_prepared = num_pipeline.fit_transform(housing_num)
+print("--------------------housing_num_prepared----------------------------")
+print(housing_num_prepared[:2].round(2))
+df_housing_num_prepared = pd.DataFrame(
+    housing_num_prepared,
+    columns=num_pipeline.get_feature_names_out(),
+    index=housing_num.index,
+)
+print("--------------------df_housing_num_prepared----------------------------")
+print(df_housing_num_prepared)
+
+cat_pipeline = make_pipeline(
+    SimpleImputer(strategy="most_frequent"), OneHotEncoder(handle_unknown="ignore")
+)
+
+preprocessing = make_column_transformer(
+    (num_pipeline, make_column_selector(dtype_include=np.number)),
+    (cat_pipeline, make_column_selector(dtype_exclude=np.number)),
+)
+housing_prepared = preprocessing.fit_transform(housing)
+print("--------------------preprocessing----------------------------")
+print(type(housing_prepared))
+
+
+# refactored code
+def column_ratio(X):
+    return X[:, [0]] / X[:, [1]]
+
+
+X = np.array([[10, 2], [20, 5], [30, 6]])
+print(column_ratio(X))
