@@ -14,7 +14,7 @@ from sklearn.preprocessing import (
 )
 from sklearn.pipeline import make_pipeline
 from sklearn.compose import make_column_transformer, make_column_selector
-
+from sklearn.linear_model import LinearRegression
 
 def load_housing_data():
     tarball_path = Path("datasets/housing.tgz")
@@ -28,6 +28,10 @@ def load_housing_data():
 
 
 housing = load_housing_data()
+housing["rooms_per_house"] = housing["total_rooms"] / housing["households"]
+housing["bedrooms_ratio"] = housing["total_bedrooms"] / housing["total_rooms"]
+housing["people_per_house"] = housing["population"] / housing["households"]
+
 housing.info()
 print("----------------")
 print(housing["ocean_proximity"].value_counts())
