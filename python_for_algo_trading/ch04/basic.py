@@ -10,8 +10,9 @@ data = pd.DataFrame(raw["EUR="])
 data.rename(columns={"EUR=": "price"}, inplace=True)
 
 # calculate mean
+
 data["SMA1"] = data["price"].rolling(window=42).mean()
-data["SMA2"] = data["price"].rolling(window=252).mean()
+data["SMA2"] =      data["price"].rolling(window=252).mean()
 
 from pylab import mpl, plt
 
@@ -22,7 +23,6 @@ mpl.rcParams["figure.dpi"] = 300
 mpl.rcParams["font.family"] = "Arial"
 
 # data.plot(title="EUR/USD | 42 & 252 SMA", figsize=(10, 6))
-
 
 data["position"] = np.where(data["SMA1"] > data["SMA2"], 1, -1)
 data.dropna(inplace=True)
