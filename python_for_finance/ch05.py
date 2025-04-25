@@ -72,7 +72,9 @@ logger.info(f"a_mean is {a_mean}")
 
 # add date
 dates = pd.date_range("2019-01-01", periods=9, freq="M")
+
 logger.info(f"dates is {dates}")
+
 df.index = dates
 logger.info(f"df is {df}")
 

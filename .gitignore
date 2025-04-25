@@ -1,4 +1,5 @@
 myvenv/
+.venv/
 darts_logs/
 crypto.csv
 dev/
